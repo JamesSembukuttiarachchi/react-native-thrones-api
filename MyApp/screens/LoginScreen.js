@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { firebase_auth } from "../services/FirebaseConfig";
 
 import {
   View,
@@ -7,47 +8,73 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  KeyboardAvoidingView,
 } from "react-native";
 
 const LoginScreen = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, isLoading] = useState(false);
+  const auth = firebase_auth;
+
   const navigation = useNavigation();
 
   const goToSignup = () => {
     navigation.navigate("Signup");
   };
+
+  const Login = async () => {
+    isLoading(true);
+    try {
+      const response = await loginWithEmailPassword(auth, email, password);
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+      alert("Login failed: " + error.message);
+    } finally {
+      isLoading(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>MyApp</Text>
+      <KeyboardAvoidingView behavior="padding">
+        <View style={styles.content}>
+          <Text style={styles.title}>MyApp</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="#CCCCCC"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCompleteType="email"
-        />
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={(text) => setEmail(text)}
+            placeholder="Email"
+            placeholderTextColor="#CCCCCC"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCompleteType="email"
+          />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#CCCCCC"
-          secureTextEntry
-          autoCompleteType="password"
-        />
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+            placeholder="Password"
+            placeholderTextColor="#CCCCCC"
+            secureTextEntry={true}
+            autoCompleteType="password"
+          />
 
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Sign In</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={styles.button} onPress={Login}>
+            <Text style={styles.buttonText}>Sign In</Text>
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.signupContainer}>
-        <Text style={styles.signupText}>Don't have an account?</Text>
-        <TouchableOpacity onPress={goToSignup}>
-          <Text style={styles.signupLink}>Sign Up</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.signupContainer}>
+          <Text style={styles.signupText}>Don't have an account?</Text>
+          <TouchableOpacity onPress={goToSignup}>
+            <Text style={styles.signupLink}>Sign Up</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
     </View>
   );
 };
